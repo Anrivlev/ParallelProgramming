@@ -137,7 +137,7 @@ int withOMP(unsigned char* data, int size)
 int main()
 {
     // BMP file reading
-    const char* filename = (char*) "./images/img01.bmp";
+    const char* filename = (char*) "ParallelProgramming/images/img01.bmp";
 
     int i;
     FILE* f = fopen(filename, "rb");
