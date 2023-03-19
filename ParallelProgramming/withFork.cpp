@@ -13,6 +13,7 @@ volatile long totalNumberOfPixels = 0;
 #include <stdio.h>
 #include <fstream>
 #include <string>
+#include<unistd.h>
 
 int isSuitable(int R, int G, int B)
 {
