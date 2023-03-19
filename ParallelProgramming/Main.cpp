@@ -12,6 +12,9 @@ volatile long totalNumberOfPixels = 0;
 #include <windows.h>
 #include <thread>
 #include <vector>
+#include <stdio.h>
+#include <fstream>
+#include <string>
 
 int isSuitable(int R, int G, int B)
 {
@@ -134,6 +137,65 @@ int withOMP(unsigned char* data, int size)
     return totalNumberOfPixels;
 }
 
+int withCreateProcess()
+{
+    STARTUPINFO si[B];
+    PROCESS_INFORMATION pi[B];
+    char bff[512];
+    ZeroMemory( &si, sizeof(si) );
+    for (int i = 0; i < B; i++)
+    {
+        si[i].cb = sizeof(si[i]);
+    }
+    ZeroMemory( &pi, sizeof(pi) );
+    for (int i = 0; i < B; i++)
+    {
+        std::sprintf(bff, "ProcessForCreateProcess.exe %d", i);
+        std::cout << bff << std::endl;
+        if( !CreateProcess( NULL,   // No module name (use command line)
+                            bff,        // Command line
+                            NULL,           // Process handle not inheritable
+                            NULL,           // Thread handle not inheritable
+                            FALSE,          // Set handle inheritance to FALSE
+                            0,              // No creation flags
+                            NULL,           // Use parent's environment block
+                            NULL,           // Use parent's starting directory
+                            &si[i],            // Pointer to STARTUPINFO structure
+                            &pi[i] )           // Pointer to PROCESS_INFORMATION structure
+                )
+        {
+            printf( "CreateProcess failed (%d).\n", GetLastError() );
+            return 0;
+        }
+    }
+    for (int i = 0; i < B; i++)
+    {
+        WaitForSingleObject( pi[i].hProcess, INFINITE );
+
+        CloseHandle( pi[i].hProcess );
+        CloseHandle( pi[i].hThread );
+    }
+    std::cout << "Thread results: [";
+    for (int i = 0; i < B; i++)
+    {
+        std::string line;
+        char* filename_in = new char[50];
+        sprintf( filename_in, "ParallelProgramming/infoProcesses/img%d.txt", i);
+
+        std::ifstream in(filename_in);
+        if (in.is_open())
+        {
+            getline(in, line);
+            std::cout << line;
+            if (i != B - 1)  std::cout << " ";
+            totalNumberOfPixels += std::stoi(line);
+        }
+        in.close();
+    }
+    std::cout << "]" << std::endl;
+    return totalNumberOfPixels;
+}
+
 int main()
 {
     // BMP file reading
@@ -192,5 +254,10 @@ int main()
     std::cout << "Total number of suitable pixels (with OMP): " << totalNumberOfPixels << std::endl;
     std::cout << std::endl;
 
+    // using CreateProcess
+    totalNumberOfPixels = 0;
+    totalNumberOfPixels = withCreateProcess();
+    std::cout << "Total number of suitable pixels (with CreateProcess): " << totalNumberOfPixels << std::endl;
+    std::cout << std::endl;
     return 0;
 }
