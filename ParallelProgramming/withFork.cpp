@@ -13,7 +13,10 @@ volatile long totalNumberOfPixels = 0;
 #include <stdio.h>
 #include <fstream>
 #include <string>
-#include<unistd.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <atomic>
+#include <filesystem>
 
 int isSuitable(int R, int G, int B)
 {
@@ -24,7 +27,7 @@ int isSuitable(int R, int G, int B)
 int main()
 {
     // BMP file reading
-    const char* filename = (char*) "img01.bmp";
+    const char* filename = (char*) "ParallelProgramming/images/img01.bmp";
 
     int i;
     FILE* f = fopen(filename, "rb");
@@ -56,9 +59,10 @@ int main()
     // data is read
 
     int th = -1;
+    pid_t c_pid;
     for (int i = 0; i < B; i++)
     {
-        pid_t c_pid = fork();
+        c_pid = fork();
         th = i;
         break;
     }
@@ -75,7 +79,11 @@ int main()
         out.open(filename_out);
         out << numberOfPixels << std::endl;
         out.close();
-        return 0;
+        exit(EXIT_SUCCESS);
+    }
+    else
+    {
+        wait(nullptr);
     }
     std::cout << "Thread results: [";
     for (int i = 0; i < B; i++)
