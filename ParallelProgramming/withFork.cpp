@@ -83,7 +83,10 @@ int main()
     }
     else
     {
-        wait(nullptr);
+        for (int i = 0; i < B; i++)
+        {
+            wait(nullptr);
+        }
     }
     std::cout << "Thread results: [";
     for (int i = 0; i < B; i++)
