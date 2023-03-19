@@ -7,7 +7,7 @@ const int A = X % 4; // A = 2
 const int B = 5 + X % 5; // B = 6
 volatile long totalNumberOfPixels = 0;
 
-#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <windows.h>
 #include <thread>
